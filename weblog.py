@@ -47,26 +47,32 @@ failed_logs = parsed_logs.filter(lambda x: x[1] == 0).map(lambda x: x[0])
 print('Read %d lines, successfully parsed %d lines, failed to parse %d lines'
       % (parsed_logs.count(), access_logs.count(), failed_logs.count()))
 
+# Creating dataframe from RDD
 access_logs_df = spark.createDataFrame(access_logs)
 access_logs_rdd = access_logs_df.rdd.repartition(1).map(lambda x: (x[0], x[1], x[2], x[3], x[4], x[5], x[6], x[7], x[8]))\
     .saveAsTextFile("E:\\projects\\twitter\\weblogDf1")
 
+# Number of requests by a particular IP
 ip_count = access_logs_df.groupBy("ipAddress").count()
 ip_count_rdd = ip_count.rdd.repartition(1).map(lambda x: (x[0], x[1]))\
    .saveAsTextFile("E:\\projects\\twitter\\response11")
 
+# Number of times a response code is recieved
 response_count = access_logs_df.groupBy("responseCode").count()
 response_count_rdd = response_count.rdd.repartition(1).map(lambda x: (x[0], x[1]))\
    .saveAsTextFile("E:\\projects\\twitter\\response")
 
+# Total data retrieved by a particular IP
 sum_size = access_logs_df.groupBy("ipAddress").sum("contentSize")
 sum_size_rdd = sum_size.rdd.repartition(1).map(lambda x: (x[0], x[1]))\
    .saveAsTextFile("E:\\projects\\twitter\\sum_size")
 
+# Number of hits on a particular page
 page_hit = access_logs_df.groupBy("endpoint").count()
 page_hit_rdd = page_hit.rdd.repartition(1).map(lambda x: (x[0], x[1]))\
    .saveAsTextFile("E:\\projects\\twitter\\page_hits")
 
+# Traffic generated on a particular dateTime
 date_count = access_logs_df.groupBy("dateTime").count()
 date_count_rdd = date_count.rdd.repartition(1).map(lambda x: (x[0], x[1]))\
     .saveAsTextFile("E:\\projects\\twitter\\date_count")
